@@ -15,6 +15,7 @@ export const auth = betterAuth({
 		"http://localhost:5173",
 		"http://localhost:4173",
 		"https://mac-mini-de-xus.tail90936e.ts.net",
+		"https://mac-mini-de-xus.tail90936e.ts.net:5173",
 	],
 	session: {
 		expiresIn: 60 * 60 * 24 * 30, // 30 days

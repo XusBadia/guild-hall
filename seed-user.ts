@@ -2,7 +2,7 @@ import { auth } from "./src/lib/auth";
 
 async function seedUser() {
 	const email = "xus@badia.me";
-	const password = "Trialinx2026!";
+	const password = "Fl1xGuild2026!";
 	const name = "Xus";
 
 	console.log(`Creating user: ${email}...`);
