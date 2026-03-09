@@ -1,203 +1,122 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { useSession } from "./lib/auth-client";
-import { Id } from "../convex/_generated/dataModel";
-import Header from "./components/Header";
-import AgentsSidebar from "./components/AgentsSidebar";
-import MissionQueue from "./components/MissionQueue";
-import RightSidebar from "./components/RightSidebar";
-import TrayContainer from "./components/Trays/TrayContainer";
+import { useQuery } from "convex/react";
+import { api } from "../convex/_generated/api";
+import { DEFAULT_TENANT_ID } from "./lib/tenant";
+import { GUILD_AGENTS } from "./data/agents";
+import type { GuildAgent } from "./data/agents";
 import SignInForm from "./components/SignIn";
-import TaskDetailPanel from "./components/TaskDetailPanel";
-import AddTaskModal from "./components/AddTaskModal";
-import AddAgentModal from "./components/AddAgentModal";
-import AgentDetailTray from "./components/AgentDetailTray";
+import GuildHeader from "./components/rpg/GuildHeader";
+import AgentsGrid from "./components/rpg/AgentsGrid";
+import MapView from "./components/rpg/MapView";
+import MissionsView from "./components/rpg/MissionsView";
+import StatsView from "./components/rpg/StatsView";
+
+function useGuildAgents(): GuildAgent[] {
+  // Try to fetch from Convex, fall back to static data
+  let convexAgents: any[] | undefined;
+  try {
+    convexAgents = useQuery(api.queries.listAgents, { tenantId: DEFAULT_TENANT_ID });
+  } catch {
+    // Convex not connected — use static data
+  }
+
+  if (convexAgents && convexAgents.length > 0) {
+    // Merge Convex data with static fallback for any missing fields
+    return convexAgents.map((ca) => {
+      const staticMatch = GUILD_AGENTS.find((sa) => sa.name === ca.name);
+      return {
+        _id: ca._id,
+        name: ca.name,
+        role: ca.role || staticMatch?.role || "",
+        status: ca.status || "idle",
+        level: ca.level || "INT",
+        avatar: ca.avatar || staticMatch?.avatar || "",
+        rpgClass: ca.rpgClass || staticMatch?.rpgClass || "",
+        rpgLevel: ca.rpgLevel ?? staticMatch?.rpgLevel ?? 1,
+        rpgXp: ca.rpgXp ?? staticMatch?.rpgXp ?? 0,
+        rpgXpToNext: ca.rpgXpToNext ?? staticMatch?.rpgXpToNext ?? 100,
+        rpgEvolution: ca.rpgEvolution ?? 0,
+        rpgAnimal: ca.rpgAnimal || staticMatch?.rpgAnimal || "",
+        rpgEmoji: ca.rpgEmoji || staticMatch?.rpgEmoji || "🤖",
+        rpgZone: ca.rpgZone || staticMatch?.rpgZone || "",
+        rpgStats: ca.rpgStats || staticMatch?.rpgStats || { intelligence: 5, speed: 5, reliability: 5, creativity: 5, stealth: 5, endurance: 5 },
+        rpgTasksCompleted: ca.rpgTasksCompleted ?? staticMatch?.rpgTasksCompleted ?? 0,
+        rpgTasksFailed: ca.rpgTasksFailed ?? staticMatch?.rpgTasksFailed ?? 0,
+        rpgStreak: ca.rpgStreak ?? staticMatch?.rpgStreak ?? 0,
+        rpgTitle: ca.rpgTitle || staticMatch?.rpgTitle || "",
+        lore: ca.lore || staticMatch?.lore || "",
+        character: ca.character || staticMatch?.character || "",
+        spriteSheet: staticMatch?.spriteSheet || `/sprites/${(ca.avatar || ca.name.toLowerCase())}-sheet.png`,
+      };
+    });
+  }
+
+  // Use static data as-is
+  return GUILD_AGENTS;
+}
+
+function GuildApp() {
+  const [activeTab, setActiveTab] = useState("agents");
+  const agents = useGuildAgents();
+
+  return (
+    <div className="flex flex-col h-screen" style={{ background: "var(--gh-bg-deep)" }}>
+      <GuildHeader
+        agents={agents}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
+
+      {/* Main content area */}
+      <main className="flex-1 min-h-0 overflow-hidden">
+        {activeTab === "agents" && <AgentsGrid agents={agents} />}
+        {activeTab === "map" && <MapView agents={agents} />}
+        {activeTab === "missions" && <MissionsView agents={agents} />}
+        {activeTab === "stats" && <StatsView agents={agents} />}
+      </main>
+    </div>
+  );
+}
 
 export default function App() {
-	const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(false);
-	const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const { data: session, isPending } = useSession();
 
-	const closeSidebars = useCallback(() => {
-		setIsLeftSidebarOpen(false);
-		setIsRightSidebarOpen(false);
-	}, []);
+  if (isPending) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center rpg-bg-pattern"
+        style={{ background: "var(--gh-bg-deep)" }}
+      >
+        <div className="flex flex-col items-center gap-4 animate-fade-in-up">
+          <span className="text-4xl animate-gentle-bounce">🏰</span>
+          <div
+            className="font-pixel text-[8px] tracking-widest uppercase"
+            style={{ color: "var(--gh-gold)" }}
+          >
+            Loading Guild...
+          </div>
+          <div className="w-32 xp-bar-track rounded-sm">
+            <div
+              className="xp-bar-fill"
+              style={{
+                width: "60%",
+                animation: "shimmer 1.5s infinite",
+                backgroundSize: "200% 100%",
+                backgroundImage: "linear-gradient(90deg, #065f46, #34d399, #065f46)",
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-	const isAnySidebarOpen = useMemo(
-		() => isLeftSidebarOpen || isRightSidebarOpen,
-		[isLeftSidebarOpen, isRightSidebarOpen],
-	);
+  if (!session) {
+    return <SignInForm />;
+  }
 
-	useEffect(() => {
-		if (!isAnySidebarOpen) return;
-
-		const onKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") {
-				closeSidebars();
-			}
-		};
-
-		document.addEventListener("keydown", onKeyDown);
-		return () => document.removeEventListener("keydown", onKeyDown);
-	}, [closeSidebars, isAnySidebarOpen]);
-	const [selectedTaskId, setSelectedTaskId] = useState<Id<"tasks"> | null>(null);
-	const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-	const [addTaskPreselectedAgentId, setAddTaskPreselectedAgentId] = useState<string | undefined>(undefined);
-	const [selectedAgentId, setSelectedAgentId] = useState<Id<"agents"> | null>(null);
-	const [showAddAgentModal, setShowAddAgentModal] = useState(false);
-
-	// Document tray state
-	const [selectedDocumentId, setSelectedDocumentId] = useState<Id<"documents"> | null>(null);
-	const [showConversationTray, setShowConversationTray] = useState(false);
-	const [showPreviewTray, setShowPreviewTray] = useState(false);
-
-	const handleSelectDocument = useCallback((id: Id<"documents"> | null) => {
-		if (id === null) {
-			// Close trays
-			setSelectedDocumentId(null);
-			setShowConversationTray(false);
-			setShowPreviewTray(false);
-		} else {
-			// Open both trays
-			setSelectedDocumentId(id);
-			setShowConversationTray(true);
-			setShowPreviewTray(true);
-		}
-	}, []);
-
-	const handlePreviewDocument = useCallback((id: Id<"documents">) => {
-		setSelectedDocumentId(id);
-		setShowConversationTray(true);
-		setShowPreviewTray(true);
-	}, []);
-
-	const handleCloseConversation = useCallback(() => {
-		setShowConversationTray(false);
-		setShowPreviewTray(false);
-		setSelectedDocumentId(null);
-	}, []);
-
-	const handleClosePreview = useCallback(() => {
-		setShowPreviewTray(false);
-	}, []);
-
-	const handleOpenPreview = useCallback(() => {
-		setShowPreviewTray(true);
-	}, []);
-
-	const { data: session, isPending } = useSession();
-
-	if (isPending) {
-		return (
-			<div className="flex min-h-screen items-center justify-center bg-background">
-				<div className="text-muted-foreground text-sm tracking-widest uppercase animate-pulse">
-					Initializing...
-				</div>
-			</div>
-		);
-	}
-
-	if (!session) {
-		return <SignInForm />;
-	}
-
-	return (
-		<>
-				<main className="app-container">
-					<Header
-						onOpenAgents={() => {
-							setIsLeftSidebarOpen(true);
-							setIsRightSidebarOpen(false);
-						}}
-						onOpenLiveFeed={() => {
-							setIsRightSidebarOpen(true);
-							setIsLeftSidebarOpen(false);
-						}}
-					/>
-
-					{isAnySidebarOpen && (
-						<div
-							className="drawer-backdrop"
-							onClick={closeSidebars}
-							aria-hidden="true"
-						/>
-					)}
-
-					<AgentsSidebar
-						isOpen={isLeftSidebarOpen}
-						onClose={() => setIsLeftSidebarOpen(false)}
-						onAddTask={(preselectedAgentId) => {
-							setAddTaskPreselectedAgentId(preselectedAgentId);
-							setShowAddTaskModal(true);
-						}}
-						onAddAgent={() => setShowAddAgentModal(true)}
-						onSelectAgent={(agentId) => setSelectedAgentId(agentId as Id<"agents">)}
-					/>
-					<MissionQueue
-						selectedTaskId={selectedTaskId}
-						onSelectTask={setSelectedTaskId}
-					/>
-					<RightSidebar
-						isOpen={isRightSidebarOpen}
-						onClose={() => setIsRightSidebarOpen(false)}
-						selectedDocumentId={selectedDocumentId}
-						onSelectDocument={handleSelectDocument}
-						onPreviewDocument={handlePreviewDocument}
-					/>
-					<TrayContainer
-						selectedDocumentId={selectedDocumentId}
-						showConversation={showConversationTray}
-						showPreview={showPreviewTray}
-						onCloseConversation={handleCloseConversation}
-						onClosePreview={handleClosePreview}
-						onOpenPreview={handleOpenPreview}
-					/>
-					{showAddTaskModal && (
-						<AddTaskModal
-							onClose={() => {
-								setShowAddTaskModal(false);
-								setAddTaskPreselectedAgentId(undefined);
-							}}
-							onCreated={(taskId) => {
-								setShowAddTaskModal(false);
-								setAddTaskPreselectedAgentId(undefined);
-								setSelectedTaskId(taskId);
-							}}
-							initialAssigneeId={addTaskPreselectedAgentId}
-						/>
-					)}
-					{selectedAgentId && (
-						<div
-							className="fixed inset-0 z-[99]"
-							onClick={() => setSelectedAgentId(null)}
-							aria-hidden="true"
-						/>
-					)}
-					<AgentDetailTray
-						agentId={selectedAgentId}
-						onClose={() => setSelectedAgentId(null)}
-					/>
-					{showAddAgentModal && (
-						<AddAgentModal
-							onClose={() => setShowAddAgentModal(false)}
-							onCreated={() => setShowAddAgentModal(false)}
-						/>
-					)}
-          {selectedTaskId && (
-						<>
-							<div
-								className="fixed inset-0 z-40"
-								onClick={() => setSelectedTaskId(null)}
-								aria-hidden="true"
-							/>
-							<TaskDetailPanel
-								taskId={selectedTaskId}
-								onClose={() => setSelectedTaskId(null)}
-								onPreviewDocument={handlePreviewDocument}
-							/>
-						</>
-					)}
-				</main>
-		</>
-	);
+  return <GuildApp />;
 }
