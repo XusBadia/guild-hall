@@ -20,10 +20,9 @@ export default function AgentsGrid({ agents }: AgentsGridProps) {
       <section className="agents-hero-panel rpg-panel-gold">
         <div>
           <div className="agents-hero-kicker">⚔ Guild roster</div>
-          <h2 className="agents-hero-title">Full character art, not placeholder sprites.</h2>
+          <h2 className="agents-hero-title">Party roster with full illustrations.</h2>
           <p className="agents-hero-copy">
-            The roster now reads like a party screen: hero illustrations up front, room assignments underneath,
-            and enough stat context to understand why each specialist belongs in the guild.
+            Agents keep their large illustration cards here, while the Map uses only the animated 4×4 RPG sprite sheets.
           </p>
         </div>
 

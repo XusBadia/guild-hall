@@ -1,362 +1,511 @@
 import { useEffect, useMemo, useState } from "react";
-import { ROOM_BY_ID, ROOM_DEFINITIONS, type PathNode, type RoomDefinition } from "./zones";
+import type { GuildAgent, SpriteDirection } from "../../data/agents";
 
-type SpriteDirection = "north" | "south" | "east" | "west";
+const TILE_SIZE = 24;
 
-interface Agent {
-  _id: string;
+interface TileCoord {
+  x: number;
+  y: number;
+}
+
+interface PatrolNode extends TileCoord {
+  pauseMs?: number;
+}
+
+interface RoomSpriteLayout {
+  rowsByDirection: Record<SpriteDirection, number>;
+  idleColumn: number;
+  walkColumns: number[];
+  columns: number;
+  rows: number;
+  notes: string;
+}
+
+interface RoomDefinition {
+  id: string;
   name: string;
-  status: "idle" | "active" | "blocked";
-  rpgEmoji?: string;
-  rpgZone?: string;
-  rpgLevel?: number;
-  rpgClass?: string;
-  avatar?: string;
-  spriteSheet?: string;
-  illustration?: string;
-  roomAssignment?: string;
-  mapSprite?: Partial<Record<SpriteDirection, string>>;
+  nameEs: string;
+  description: string;
+  image?: string;
+  fallbackGradient: string;
+  width: number;
+  height: number;
+  floorPattern: string[];
+  collisionPattern: string[];
+  spawnPoints: Record<string, TileCoord>;
+  patrols: Record<string, PatrolNode[]>;
+  defaultFacing?: Partial<Record<string, SpriteDirection>>;
+  spriteLayout: RoomSpriteLayout;
+}
+
+interface TileEntityState {
+  agent: GuildAgent;
+  x: number;
+  y: number;
+  direction: SpriteDirection;
+  frame: number;
+  moving: boolean;
 }
 
 interface GuildMapProps {
-  agents: Agent[];
-  onSelectAgent?: (agentId: string) => void;
+  agents: GuildAgent[];
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
+const DEFAULT_LAYOUT: RoomSpriteLayout = {
+  rowsByDirection: { south: 0, west: 1, east: 2, north: 3 },
+  idleColumn: 0,
+  walkColumns: [0, 1, 2, 1],
+  columns: 4,
+  rows: 4,
+  notes:
+    "Assumed 4x4 sheets use RPG rows ordered south, west, east, north with the first column as idle and columns 0-1-2-1 as the walk loop.",
+};
+
+const THRONE_ROOM: RoomDefinition = {
+  id: "throne-room",
+  name: "Throne Room",
+  nameEs: "Sala del Trono",
+  description:
+    "Command hall built as a tile room: carpet lane, blocked furniture, throne dais, and fixed patrol rails.",
+  image: "/map/rooms/sala-del-trono.png",
+  fallbackGradient: "linear-gradient(135deg, rgba(88,22,54,.95), rgba(27,30,63,.95))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##..........##",
+    "##..TTTTTT..##",
+    "##....==....##",
+    "##..........##",
+    "##..........##",
+    "##....++....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "##..........##",
+    "##..######..##",
+    "##..........##",
+    "##..........##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Flix: { x: 6, y: 5 },
+  },
+  patrols: {
+    Flix: [
+      { x: 5, y: 5, pauseMs: 800 },
+      { x: 6, y: 5 },
+      { x: 7, y: 5, pauseMs: 1100 },
+      { x: 6, y: 5 },
+    ],
+  },
+  defaultFacing: { Flix: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const FORGE_ROOM: RoomDefinition = {
+  id: "forge",
+  name: "The Forge",
+  nameEs: "La Forja",
+  description:
+    "A smithy room with true blocked props: furnace, workbench, anvil zone, barrel corner, and a clear center lane.",
+  image: "/map/rooms/forge-room.png",
+  fallbackGradient: "linear-gradient(135deg, rgba(95,34,16,.96), rgba(28,13,8,.95))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##~~~~..wwww##",
+    "##~~~....www##",
+    "##...AA.....##",
+    "##..........##",
+    "##...bb.....##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "#######..#####",
+    "######....####",
+    "##...##.....##",
+    "##..........##",
+    "##...##.....##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Forgex: { x: 6, y: 4 },
+  },
+  patrols: {
+    Forgex: [
+      { x: 5, y: 4, pauseMs: 700 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4 },
+      { x: 7, y: 5, pauseMs: 900 },
+      { x: 6, y: 5 },
+      { x: 5, y: 4 },
+    ],
+  },
+  defaultFacing: { Forgex: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const ROOM_ORDER = [THRONE_ROOM, FORGE_ROOM] satisfies RoomDefinition[];
+const ROOM_BY_ID = Object.fromEntries(ROOM_ORDER.map((room) => [room.id, room])) as Record<string, RoomDefinition>;
+
+const ROOM_LABELS: Record<string, string> = {
+  ".": "Floor",
+  "#": "Wall / blocked",
+  T: "Throne dais",
+  "=": "Carpet runner",
+  "+": "Entrance arch",
+  "~": "Furnace zone",
+  w: "Workbench",
+  A: "Anvil platform",
+  b: "Barrel / tools",
+  D: "Door",
+};
+
+function isBlocked(room: RoomDefinition, x: number, y: number) {
+  if (x < 0 || y < 0 || x >= room.width || y >= room.height) return true;
+  return room.collisionPattern[y]?.[x] === "#";
 }
 
-function computePathPosition(path: PathNode[], progress: number) {
-  if (path.length === 0) return { x: 50, y: 78 };
-  if (path.length === 1) return { x: path[0].x, y: path[0].y };
-
-  const segments = path.length - 1;
-  const normalized = clamp(progress, 0, 0.9999) * segments;
-  const index = Math.floor(normalized);
-  const local = normalized - index;
-  const start = path[index];
-  const end = path[index + 1] ?? start;
-
-  return {
-    x: start.x + (end.x - start.x) * local,
-    y: start.y + (end.y - start.y) * local,
-  };
+function keyOf(x: number, y: number) {
+  return `${x},${y}`;
 }
 
-function inferDirection(path: PathNode[], progress: number): SpriteDirection {
-  if (path.length < 2) return "south";
-  const segments = path.length - 1;
-  const normalized = clamp(progress, 0, 0.9999) * segments;
-  const index = Math.floor(normalized);
-  const start = path[index];
-  const end = path[index + 1] ?? start;
-  const dx = end.x - start.x;
-  const dy = end.y - start.y;
-  if (Math.abs(dx) > Math.abs(dy)) return dx >= 0 ? "east" : "west";
-  return dy <= 0 ? "north" : "south";
+function getNeighbors(room: RoomDefinition, tile: TileCoord) {
+  return [
+    { x: tile.x, y: tile.y - 1, direction: "north" as SpriteDirection },
+    { x: tile.x + 1, y: tile.y, direction: "east" as SpriteDirection },
+    { x: tile.x, y: tile.y + 1, direction: "south" as SpriteDirection },
+    { x: tile.x - 1, y: tile.y, direction: "west" as SpriteDirection },
+  ].filter((next) => !isBlocked(room, next.x, next.y));
 }
 
-function getStatusStyle(status: Agent["status"]) {
-  switch (status) {
-    case "active":
+function findPath(room: RoomDefinition, start: TileCoord, goal: TileCoord, occupied: Set<string>) {
+  if (start.x === goal.x && start.y === goal.y) return [start];
+
+  const queue: TileCoord[] = [start];
+  const visited = new Set([keyOf(start.x, start.y)]);
+  const parents = new Map<string, TileCoord>();
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+
+    for (const next of getNeighbors(room, current)) {
+      const nextKey = keyOf(next.x, next.y);
+      if (visited.has(nextKey)) continue;
+      if (occupied.has(nextKey) && !(next.x === goal.x && next.y === goal.y)) continue;
+
+      visited.add(nextKey);
+      parents.set(nextKey, current);
+
+      if (next.x === goal.x && next.y === goal.y) {
+        const path: TileCoord[] = [{ x: goal.x, y: goal.y }];
+        let cursor = current;
+        while (!(cursor.x === start.x && cursor.y === start.y)) {
+          path.unshift(cursor);
+          cursor = parents.get(keyOf(cursor.x, cursor.y))!;
+        }
+        path.unshift(start);
+        return path;
+      }
+
+      queue.push({ x: next.x, y: next.y });
+    }
+  }
+
+  return [start];
+}
+
+function directionFromStep(from: TileCoord, to: TileCoord): SpriteDirection {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  if (Math.abs(dx) > Math.abs(dy)) return dx > 0 ? "east" : "west";
+  return dy > 0 ? "south" : "north";
+}
+
+function getSpriteSheet(slug: string) {
+  return `/map/xus-sprites/${slug}-sheet.png`;
+}
+
+function getFrameBackgroundPosition(direction: SpriteDirection, frame: number, layout: RoomSpriteLayout) {
+  const row = layout.rowsByDirection[direction] ?? layout.rowsByDirection.south;
+  const col = layout.walkColumns[frame % layout.walkColumns.length] ?? layout.idleColumn;
+  const x = layout.columns <= 1 ? 0 : (col / (layout.columns - 1)) * 100;
+  const y = layout.rows <= 1 ? 0 : (row / (layout.rows - 1)) * 100;
+  return `${x}% ${y}%`;
+}
+
+function roomForAgent(agent: GuildAgent) {
+  return ROOM_BY_ID[agent.roomAssignment] ? agent.roomAssignment : agent.name === "Forgex" ? "forge" : "throne-room";
+}
+
+function buildInitialState(agents: GuildAgent[]) {
+  const byRoom: Record<string, TileEntityState[]> = {};
+
+  for (const room of ROOM_ORDER) {
+    const roomAgents = agents.filter((agent) => roomForAgent(agent) === room.id);
+    byRoom[room.id] = roomAgents.map((agent, index) => {
+      const fallback = room.patrols[agent.name]?.[0] ?? room.spawnPoints[agent.name] ?? { x: 1 + index, y: room.height - 2 };
+      const facing = room.defaultFacing?.[agent.name] ?? "south";
       return {
-        dot: "#34d399",
-        chip: "rgba(52,211,153,.14)",
-        border: "rgba(52,211,153,.35)",
-        label: "ACTIVE",
+        agent,
+        x: fallback.x,
+        y: fallback.y,
+        direction: facing,
+        frame: 0,
+        moving: false,
       };
-    case "blocked":
-      return {
-        dot: "#ef4444",
-        chip: "rgba(239,68,68,.14)",
-        border: "rgba(239,68,68,.35)",
-        label: "BLOCKED",
-      };
+    });
+  }
+
+  return byRoom;
+}
+
+function stepRoom(room: RoomDefinition, states: TileEntityState[]) {
+  const occupied = new Set(states.map((state) => keyOf(state.x, state.y)));
+
+  return states.map((state) => {
+    const patrol = room.patrols[state.agent.name] ?? [room.spawnPoints[state.agent.name] ?? { x: state.x, y: state.y }];
+    if (patrol.length === 0) return { ...state, moving: false, frame: 0 };
+
+    const currentIndex = patrol.findIndex((node) => node.x === state.x && node.y === state.y);
+    const nextTarget = currentIndex >= 0 ? patrol[(currentIndex + 1) % patrol.length] : patrol[0];
+
+    occupied.delete(keyOf(state.x, state.y));
+    const path = findPath(room, { x: state.x, y: state.y }, nextTarget, occupied);
+    const nextStep = path[1];
+    occupied.add(keyOf(state.x, state.y));
+
+    if (!nextStep) {
+      return { ...state, moving: false, frame: 0 };
+    }
+
+    const destinationKey = keyOf(nextStep.x, nextStep.y);
+    if (occupied.has(destinationKey)) {
+      return { ...state, moving: false, frame: 0 };
+    }
+
+    occupied.delete(keyOf(state.x, state.y));
+    occupied.add(destinationKey);
+
+    return {
+      ...state,
+      x: nextStep.x,
+      y: nextStep.y,
+      direction: directionFromStep({ x: state.x, y: state.y }, nextStep),
+      frame: (state.frame + 1) % room.spriteLayout.walkColumns.length,
+      moving: true,
+    };
+  });
+}
+
+function getTileClass(char: string) {
+  switch (char) {
+    case "#":
+      return "rpg-map-tile is-blocked";
+    case "T":
+      return "rpg-map-tile is-throne";
+    case "=":
+      return "rpg-map-tile is-carpet";
+    case "+":
+    case "D":
+      return "rpg-map-tile is-door";
+    case "~":
+      return "rpg-map-tile is-furnace";
+    case "w":
+      return "rpg-map-tile is-workbench";
+    case "A":
+      return "rpg-map-tile is-anvil";
+    case "b":
+      return "rpg-map-tile is-barrel";
     default:
-      return {
-        dot: "#94a3b8",
-        chip: "rgba(148,163,184,.14)",
-        border: "rgba(148,163,184,.25)",
-        label: "IDLE",
-      };
+      return "rpg-map-tile is-floor";
   }
 }
 
-function RoomSprite({
-  agent,
-  room,
-  progress,
-  onSelect,
-}: {
-  agent: Agent;
-  room: RoomDefinition;
-  progress: number;
-  onSelect?: () => void;
-}) {
-  const spawn = room.agentSpawns.find((entry) => entry.agentId === agent.name);
-  const pathPos = computePathPosition(room.walkPath, progress);
-  const status = getStatusStyle(agent.status);
-  const direction = spawn?.facing ?? inferDirection(room.walkPath, progress);
-  const sprite = agent.mapSprite?.[direction] ?? agent.mapSprite?.south;
-  const position = {
-    x: spawn ? spawn.x + (pathPos.x - 50) * 0.18 : pathPos.x,
-    y: spawn ? spawn.y + (pathPos.y - 74) * 0.18 : pathPos.y,
-  };
+function getStatusTone(status: GuildAgent["status"]) {
+  if (status === "active") return { dot: "#34d399", label: "ACTIVE" };
+  if (status === "blocked") return { dot: "#ef4444", label: "BLOCKED" };
+  return { dot: "#94a3b8", label: "IDLE" };
+}
 
+function TileMapRoom({ room, entities }: { room: RoomDefinition; entities: TileEntityState[] }) {
   return (
-    <button
-      type="button"
-      className="group absolute -translate-x-1/2 -translate-y-1/2 transition-transform duration-300 hover:scale-110"
-      style={{ left: `${position.x}%`, top: `${position.y}%` }}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelect?.();
-      }}
-      title={`${agent.name} · ${agent.rpgClass || "Agent"}`}
-    >
-      <div className="relative flex flex-col items-center gap-1">
+    <section className="rpg-map-room-panel rpg-panel-gold">
+      <div className="rpg-map-room-head">
+        <div>
+          <div className="rpg-map-room-kicker">{room.nameEs}</div>
+          <h3 className="rpg-map-room-title">{room.name}</h3>
+          <p className="rpg-map-room-copy">{room.description}</p>
+        </div>
+        <div className="rpg-map-room-badges">
+          <span>{room.width}×{room.height} tiles</span>
+          <span>{entities.length} agents</span>
+        </div>
+      </div>
+
+      <div className="rpg-map-stage-wrap">
+        <div className="rpg-map-stage-art" style={{ background: room.fallbackGradient }}>
+          {room.image ? <img src={room.image} alt={room.nameEs} className="rpg-map-stage-art-image" /> : null}
+        </div>
+
         <div
-          className="guild-sprite-status"
+          className="rpg-map-stage"
           style={{
-            background: status.dot,
-            boxShadow: `0 0 10px ${status.dot}`,
+            width: room.width * TILE_SIZE,
+            height: room.height * TILE_SIZE,
+            gridTemplateColumns: `repeat(${room.width}, ${TILE_SIZE}px)`,
+            gridTemplateRows: `repeat(${room.height}, ${TILE_SIZE}px)`,
           }}
-        />
-        <div className="guild-sprite-shell">
-          {sprite ? (
-            <img src={sprite} alt={agent.name} className="guild-room-sprite" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-lg">{agent.rpgEmoji || "🤖"}</div>
+        >
+          {room.floorPattern.flatMap((row, y) =>
+            row.split("").map((cell, x) => {
+              const blocked = isBlocked(room, x, y);
+              return (
+                <div
+                  key={`${room.id}-${x}-${y}`}
+                  className={getTileClass(cell)}
+                  title={`${x},${y} · ${ROOM_LABELS[cell] ?? "Floor"}${blocked ? " · collision" : ""}`}
+                >
+                  <span className="rpg-map-grid-dot" />
+                </div>
+              );
+            }),
           )}
-        </div>
-        <div className="guild-sprite-nameplate">
-          <span>{agent.name}</span>
+
+          {entities.map((entity) => {
+            const status = getStatusTone(entity.agent.status);
+            const sheet = getSpriteSheet(entity.agent.avatar || entity.agent.name.toLowerCase());
+            return (
+              <div
+                key={entity.agent._id}
+                className="rpg-map-entity"
+                style={{
+                  left: entity.x * TILE_SIZE,
+                  top: entity.y * TILE_SIZE,
+                  width: TILE_SIZE,
+                  height: TILE_SIZE,
+                }}
+                title={`${entity.agent.name} · ${entity.direction} · tile ${entity.x},${entity.y}`}
+              >
+                <div className="rpg-map-entity-shadow" />
+                <div
+                  className="rpg-map-entity-sprite"
+                  style={{
+                    backgroundImage: `url(${sheet})`,
+                    backgroundSize: `${DEFAULT_LAYOUT.columns * 100}% ${DEFAULT_LAYOUT.rows * 100}%`,
+                    backgroundPosition: getFrameBackgroundPosition(entity.direction, entity.moving ? entity.frame : 0, room.spriteLayout),
+                  }}
+                />
+                <div className="rpg-map-entity-status" style={{ background: status.dot }} />
+              </div>
+            );
+          })}
         </div>
       </div>
-    </button>
+
+      <div className="rpg-map-legend">
+        <div className="rpg-map-legend-group">
+          <span className="rpg-map-legend-title">Collision layer</span>
+          <div className="rpg-map-legend-row">
+            <span className="legend-chip floor">walkable</span>
+            <span className="legend-chip blocked">blocked</span>
+            <span className="legend-chip route">patrol route</span>
+          </div>
+        </div>
+        <div className="rpg-map-legend-group">
+          <span className="rpg-map-legend-title">Sprite sheet mapping</span>
+          <p>
+            {room.spriteLayout.notes}
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 
-function RoomCard({
-  room,
-  agents,
-  selected,
-  onSelectRoom,
-  onSelectAgent,
-  tick,
-}: {
-  room: RoomDefinition;
-  agents: Agent[];
-  selected: boolean;
-  onSelectRoom: () => void;
-  onSelectAgent?: (agentId: string) => void;
-  tick: number;
-}) {
-  return (
-    <article
-      className={`guild-room-card ${selected ? "is-selected" : ""}`}
-      style={{ gridArea: room.gridArea }}
-      onClick={onSelectRoom}
-    >
-      <div className="guild-room-art" style={{ background: room.fallbackGradient }}>
-        {room.image ? (
-          <img src={room.image} alt={room.nameEs} className="guild-room-image" />
-        ) : (
-          <div className="guild-room-missing-art">
-            <span className="text-3xl">{room.icon}</span>
-            <span>{room.status === "needs-art" ? "Tileset pending" : "Room ready"}</span>
-          </div>
-        )}
-        <div className="guild-room-vignette" />
-        <div className="guild-room-path-overlay" />
-        {agents.map((agent, index) => (
-          <RoomSprite
-            key={agent._id}
-            agent={agent}
-            room={room}
-            progress={((tick * 0.04) + index / Math.max(agents.length, 1)) % 1}
-            onSelect={() => onSelectAgent?.(agent._id)}
-          />
-        ))}
-      </div>
+export default function GuildMap({ agents }: GuildMapProps) {
+  const [entitiesByRoom, setEntitiesByRoom] = useState<Record<string, TileEntityState[]>>(() => buildInitialState(agents));
 
-      <div className="guild-room-body">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="guild-room-kicker">{room.icon} {room.nameEs}</div>
-            <h3 className="guild-room-title">{room.name}</h3>
-          </div>
-          <div className={`guild-room-status ${room.status}`}>
-            {room.status === "ready" ? "art ready" : "needs art"}
-          </div>
-        </div>
-
-        <p className="guild-room-description">{room.description}</p>
-
-        <div className="guild-room-meta">
-          <div>
-            <span className="guild-room-meta-label">Mood</span>
-            <span className="guild-room-meta-value">{room.mood}</span>
-          </div>
-          <div>
-            <span className="guild-room-meta-label">Walk nodes</span>
-            <span className="guild-room-meta-value">{room.walkPath.length}</span>
-          </div>
-          <div>
-            <span className="guild-room-meta-label">Agents</span>
-            <span className="guild-room-meta-value">{agents.length}</span>
-          </div>
-        </div>
-
-        <div className="guild-room-tags">
-          {room.tags.map((tag) => (
-            <span key={tag} className="guild-room-tag">{tag}</span>
-          ))}
-        </div>
-      </div>
-    </article>
-  );
-}
-
-export default function GuildMap({ agents, onSelectAgent }: GuildMapProps) {
-  const [selectedRoomId, setSelectedRoomId] = useState<string>("throne-room");
-  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    setEntitiesByRoom(buildInitialState(agents));
+  }, [agents]);
 
   useEffect(() => {
     const handle = window.setInterval(() => {
-      setTick((value) => value + 1);
-    }, 900);
+      setEntitiesByRoom((current) => {
+        const next: Record<string, TileEntityState[]> = {};
+        for (const room of ROOM_ORDER) {
+          next[room.id] = stepRoom(room, current[room.id] ?? []);
+        }
+        return next;
+      });
+    }, 280);
 
     return () => window.clearInterval(handle);
   }, []);
 
-  const agentsByRoom = useMemo(() => {
-    const grouped = ROOM_DEFINITIONS.reduce<Record<string, Agent[]>>((acc, room) => {
-      acc[room.id] = [];
-      return acc;
-    }, {});
-
-    for (const agent of agents) {
-      const roomId = agent.roomAssignment ?? "throne-room";
-      if (!grouped[roomId]) grouped[roomId] = [];
-      grouped[roomId].push(agent);
-    }
-
-    return grouped;
-  }, [agents]);
-
-  const selectedRoom = ROOM_BY_ID[selectedRoomId] ?? ROOM_DEFINITIONS[0];
-  const selectedRoomAgents = agentsByRoom[selectedRoom.id] ?? [];
-  const readyRooms = ROOM_DEFINITIONS.filter((room) => room.status === "ready").length;
+  const roomSummaries = useMemo(
+    () =>
+      ROOM_ORDER.map((room) => ({
+        room,
+        entities: entitiesByRoom[room.id] ?? [],
+      })),
+    [entitiesByRoom],
+  );
 
   return (
     <div className="flex h-full flex-col gap-5 p-4 md:p-6">
-      <div className="guild-map-hero">
+      <section className="guild-map-hero rpg-panel-gold">
         <div>
-          <div className="guild-map-kicker">🗺 Real Guild Map</div>
-          <h2 className="guild-map-title">Rooms first. Tileset-ready. Sprite-aware.</h2>
+          <div className="guild-map-kicker">🗺 RPG map system</div>
+          <h2 className="guild-map-title">Tile rooms, 1×1 agents, real collisions.</h2>
           <p className="guild-map-subtitle">
-            The guild now runs on room definitions instead of generic colored blocks: room art, patrol paths,
-            spawn points, and state-ready sprite movement all live in data.
+            The map now behaves like a small RPG board instead of a dashboard card wall: every agent occupies exactly one tile,
+            movement resolves on a collision grid, and map rendering uses the real 4×4 animated sprite sheets only.
           </p>
         </div>
         <div className="guild-map-summary-grid">
           <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">{ROOM_DEFINITIONS.length}</span>
-            <span className="guild-map-summary-label">rooms</span>
-          </div>
-          <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">{readyRooms}</span>
-            <span className="guild-map-summary-label">art ready</span>
+            <span className="guild-map-summary-value">{ROOM_ORDER.length}</span>
+            <span className="guild-map-summary-label">tile rooms</span>
           </div>
           <div className="guild-map-summary-card">
             <span className="guild-map-summary-value">{agents.length}</span>
-            <span className="guild-map-summary-label">sprites placed</span>
+            <span className="guild-map-summary-label">1×1 entities</span>
+          </div>
+          <div className="guild-map-summary-card">
+            <span className="guild-map-summary-value">BFS</span>
+            <span className="guild-map-summary-label">pathing / collision</span>
+          </div>
+          <div className="guild-map-summary-card">
+            <span className="guild-map-summary-value">4×4</span>
+            <span className="guild-map-summary-label">animated sheets</span>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div className="guild-map-layout">
-        <section className="guild-map-grid">
-          {ROOM_DEFINITIONS.map((room) => (
-            <RoomCard
-              key={room.id}
-              room={room}
-              agents={agentsByRoom[room.id] ?? []}
-              selected={selectedRoom.id === room.id}
-              onSelectRoom={() => setSelectedRoomId(room.id)}
-              onSelectAgent={onSelectAgent}
-              tick={tick}
-            />
-          ))}
-        </section>
+      <section className="rpg-map-system-grid">
+        {roomSummaries.map(({ room, entities }) => (
+          <TileMapRoom key={room.id} room={room} entities={entities} />
+        ))}
+      </section>
 
-        <aside className="guild-room-inspector rpg-panel-gold">
-          <div className="guild-room-inspector-kicker">Room inspector</div>
-          <h3 className="guild-room-inspector-title">{selectedRoom.nameEs}</h3>
-          <p className="guild-room-inspector-description">{selectedRoom.description}</p>
-
-          <div className="guild-room-inspector-section">
-            <span className="guild-room-meta-label">Art brief</span>
-            <p className="guild-room-inspector-copy">{selectedRoom.artBrief}</p>
-          </div>
-
-          <div className="guild-room-inspector-section">
-            <span className="guild-room-meta-label">Palette</span>
-            <div className="guild-palette-row">
-              {selectedRoom.palette.map((color) => (
-                <div key={color} className="guild-palette-chip" title={color}>
-                  <span style={{ background: color }} />
-                  <code>{color}</code>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="guild-room-inspector-section">
-            <span className="guild-room-meta-label">Path nodes</span>
-            <div className="guild-path-list">
-              {selectedRoom.walkPath.map((node, index) => (
-                <div key={`${node.x}-${node.y}-${index}`} className="guild-path-node">
-                  <span>Node {index + 1}</span>
-                  <code>{node.x}% / {node.y}%</code>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="guild-room-inspector-section">
-            <span className="guild-room-meta-label">Agents in room</span>
-            <div className="guild-room-agent-list">
-              {selectedRoomAgents.length > 0 ? selectedRoomAgents.map((agent) => {
-                const status = getStatusStyle(agent.status);
-                return (
-                  <button
-                    type="button"
-                    key={agent._id}
-                    className="guild-room-agent-item"
-                    onClick={() => onSelectAgent?.(agent._id)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="guild-room-agent-avatar">
-                        {agent.mapSprite?.south ? <img src={agent.mapSprite.south} alt={agent.name} className="guild-room-agent-avatar-img" /> : agent.rpgEmoji}
-                      </div>
-                      <div className="flex flex-col items-start">
-                        <span className="guild-room-agent-name">{agent.name}</span>
-                        <span className="guild-room-agent-role">{agent.rpgClass}</span>
-                      </div>
-                    </div>
-                    <span className="guild-room-agent-status" style={{ background: status.chip, color: status.dot, borderColor: status.border }}>
-                      {status.label}
-                    </span>
-                  </button>
-                );
-              }) : <p className="guild-room-inspector-copy">No agents assigned yet.</p>}
-            </div>
-          </div>
-        </aside>
-      </div>
+      <section className="rpg-panel p-4 rpg-map-notes">
+        <div className="rpg-map-legend-title">Current room data scaffolding</div>
+        <ul>
+          <li>Room definitions include floor pattern, collision pattern, spawn points, patrol nodes, and sprite layout metadata.</li>
+          <li>Throne Room and Forge use current art as background layers while the playable logic lives in tile data.</li>
+          <li>Only Flix and Forgex are placed on the live tile map for now because these are the rooms with actual room art references.</li>
+        </ul>
+      </section>
     </div>
   );
 }
