@@ -1,13 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════
-   GUILD HALL — RPG GAME UI THEME
-   SNES-era pixel art aesthetic
-   ═══════════════════════════════════════════════ */
-
 :root {
-  /* RPG Color Palette */
   --gh-bg-deep: #0a0a14;
   --gh-bg-dark: #0f0f1e;
   --gh-bg-panel: #141428;
@@ -29,16 +23,10 @@
   --gh-text-faint: #475569;
   --gh-purple: #a78bfa;
   --gh-blue: #60a5fa;
-
-  /* Font stacks */
   --font-pixel: "Press Start 2P", monospace;
   --font-rpg: "VT323", monospace;
   --font-body: "Outfit", sans-serif;
-
-  /* Layout */
   --header-height: 72px;
-
-  /* Preserve existing Tailwind theme vars */
   --background: oklch(0.05 0.01 270);
   --foreground: oklch(0.93 0 0);
   --card: oklch(0.12 0.01 270);
@@ -59,10 +47,8 @@
   --input: oklch(0.2 0.01 270);
   --ring: oklch(0.75 0.15 85);
   --radius: 0.25rem;
-
   --font-sans: "Outfit", sans-serif;
   --font-mono: "VT323", monospace;
-
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.3);
   --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.3);
   --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.4), 0px 1px 2px -1px hsl(0 0% 0% / 0.4);
@@ -71,7 +57,6 @@
   --shadow-lg: 0px 10px 15px -3px hsl(0 0% 0% / 0.4), 0px 4px 6px -4px hsl(0 0% 0% / 0.4);
   --shadow-xl: 0px 20px 25px -5px hsl(0 0% 0% / 0.5), 0px 8px 10px -6px hsl(0 0% 0% / 0.5);
   --shadow-2xl: 0px 25px 50px -12px hsl(0 0% 0% / 0.7);
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -141,66 +126,38 @@
   }
 }
 
-/* ═══════════════════════════════════════════════
-   PIXEL ART UTILITY CLASSES
-   ═══════════════════════════════════════════════ */
-
-.font-pixel {
-  font-family: var(--font-pixel);
-}
-
-.font-rpg {
-  font-family: var(--font-rpg);
-}
+.font-pixel { font-family: var(--font-pixel); }
+.font-rpg { font-family: var(--font-rpg); }
 
 .pixel-border {
   border: 3px solid var(--gh-border-gold);
-  box-shadow:
-    inset 0 0 0 1px var(--gh-bg-deep),
-    inset 0 0 0 2px var(--gh-border-gold-dim),
-    0 0 0 1px var(--gh-bg-deep),
-    0 0 8px rgba(200, 168, 78, 0.15);
+  box-shadow: inset 0 0 0 1px var(--gh-bg-deep), inset 0 0 0 2px var(--gh-border-gold-dim), 0 0 0 1px var(--gh-bg-deep), 0 0 8px rgba(200, 168, 78, 0.15);
   image-rendering: pixelated;
 }
 
 .pixel-border-emerald {
   border: 3px solid var(--gh-emerald);
-  box-shadow:
-    inset 0 0 0 1px var(--gh-bg-deep),
-    inset 0 0 0 2px var(--gh-emerald-dim),
-    0 0 0 1px var(--gh-bg-deep),
-    0 0 12px var(--gh-emerald-glow);
+  box-shadow: inset 0 0 0 1px var(--gh-bg-deep), inset 0 0 0 2px var(--gh-emerald-dim), 0 0 0 1px var(--gh-bg-deep), 0 0 12px var(--gh-emerald-glow);
 }
 
 .rpg-panel {
   background: var(--gh-bg-panel);
   border: 2px solid var(--gh-border);
   border-radius: 2px;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.03),
-    0 4px 16px rgba(0, 0, 0, 0.5);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.03), 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 .rpg-panel-gold {
   background: linear-gradient(180deg, var(--gh-bg-card) 0%, var(--gh-bg-panel) 100%);
   border: 2px solid var(--gh-border-gold-dim);
   border-radius: 2px;
-  box-shadow:
-    inset 1px 1px 0 rgba(255, 255, 255, 0.05),
-    inset 0 0 20px rgba(200, 168, 78, 0.03),
-    0 4px 16px rgba(0, 0, 0, 0.5),
-    0 0 1px var(--gh-border-gold-dim);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.05), inset 0 0 20px rgba(200, 168, 78, 0.03), 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 1px var(--gh-border-gold-dim);
 }
 
-/* Sprite rendering */
 .sprite-container {
   image-rendering: pixelated;
   image-rendering: crisp-edges;
 }
-
-/* ═══════════════════════════════════════════════
-   XP BAR — RPG STYLE
-   ═══════════════════════════════════════════════ */
 
 .xp-bar-track {
   background: var(--gh-bg-deep);
@@ -221,16 +178,11 @@
 .xp-bar-fill::after {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0 auto auto 0;
   right: 0;
   height: 50%;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
 }
-
-/* ═══════════════════════════════════════════════
-   STATS RADAR — SVG-based
-   ═══════════════════════════════════════════════ */
 
 .stat-bar-track {
   background: var(--gh-bg-deep);
@@ -239,21 +191,9 @@
   flex: 1;
 }
 
-.stat-bar-fill {
-  height: 100%;
-  transition: width 0.4s ease;
-}
+.stat-bar-fill { height: 100%; transition: width 0.4s ease; }
 
-/* ═══════════════════════════════════════════════
-   CARD GLOW EFFECTS
-   ═══════════════════════════════════════════════ */
-
-.agent-card {
-  transition: all 0.25s ease;
-  cursor: pointer;
-  position: relative;
-}
-
+.agent-card { transition: all 0.25s ease; cursor: pointer; position: relative; }
 .agent-card::before {
   content: "";
   position: absolute;
@@ -264,40 +204,17 @@
   transition: opacity 0.25s ease;
   z-index: -1;
 }
+.agent-card:hover { transform: translateY(-4px); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(200, 168, 78, 0.1); }
+.agent-card:hover::before { opacity: 1; }
+.agent-card .stat-reveal { max-height: 0; opacity: 0; transition: max-height 0.3s ease, opacity 0.25s ease; }
+.agent-card:hover .stat-reveal { max-height: 100px; opacity: 1; }
 
-.agent-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(200, 168, 78, 0.1);
-}
-
-.agent-card:hover::before {
-  opacity: 1;
-}
-
-.agent-card .stat-reveal {
-  max-height: 0;
-  opacity: 0;
-  transition: max-height 0.3s ease, opacity 0.25s ease;
-}
-
-.agent-card:hover .stat-reveal {
-  max-height: 100px;
-  opacity: 1;
-}
-
-/* Active status pulse */
 @keyframes status-pulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
   50% { opacity: 0.7; box-shadow: 0 0 0 3px transparent; }
 }
 
-.status-dot-active {
-  animation: status-pulse 2s ease-in-out infinite;
-}
-
-/* ═══════════════════════════════════════════════
-   TAB NAVIGATION — RPG MENU STYLE
-   ═══════════════════════════════════════════════ */
+.status-dot-active { animation: status-pulse 2s ease-in-out infinite; }
 
 .rpg-tab {
   font-family: var(--font-rpg);
@@ -312,11 +229,7 @@
   position: relative;
   background: transparent;
 }
-
-.rpg-tab:hover {
-  color: var(--gh-gold-light);
-}
-
+.rpg-tab:hover { color: var(--gh-gold-light); }
 .rpg-tab.active {
   color: var(--gh-gold);
   background: var(--gh-bg-panel);
@@ -325,108 +238,46 @@
   margin-bottom: -2px;
   text-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
 }
+.rpg-tab.active::before { content: "▸ "; }
 
-.rpg-tab.active::before {
-  content: "▸ ";
-}
-
-/* ═══════════════════════════════════════════════
-   SCROLLBAR — RPG THEMED
-   ═══════════════════════════════════════════════ */
-
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--gh-bg-deep);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--gh-border);
-  border: 1px solid var(--gh-bg-deep);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--gh-border-gold-dim);
-}
-
-/* ═══════════════════════════════════════════════
-   ANIMATIONS
-   ═══════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--gh-bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--gh-border); border: 1px solid var(--gh-bg-deep); }
+::-webkit-scrollbar-thumb:hover { background: var(--gh-border-gold-dim); }
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes gentle-bounce {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-4px); }
 }
-
 @keyframes sparkle {
   0%, 100% { opacity: 0; transform: scale(0); }
   50% { opacity: 1; transform: scale(1); }
 }
-
 @keyframes float-particle {
   0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
   25% { transform: translateY(-20px) translateX(10px); opacity: 0.7; }
   50% { transform: translateY(-10px) translateX(-5px); opacity: 0.4; }
   75% { transform: translateY(-30px) translateX(15px); opacity: 0.6; }
 }
-
-@keyframes scanline {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes card-enter {
   from { opacity: 0; transform: scale(0.95) translateY(10px); }
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.5s ease-out both;
-}
-
-.animate-gentle-bounce {
-  animation: gentle-bounce 3s ease-in-out infinite;
-}
-
+.animate-fade-in-up { animation: fade-in-up 0.5s ease-out both; }
+.animate-gentle-bounce { animation: gentle-bounce 3s ease-in-out infinite; }
 .animate-sparkle-1 { animation: sparkle 2s ease-in-out infinite; }
 .animate-sparkle-2 { animation: sparkle 2s ease-in-out infinite 0.6s; }
 .animate-sparkle-3 { animation: sparkle 2s ease-in-out infinite 1.2s; }
 .animate-float-1 { animation: float-particle 6s ease-in-out infinite; }
 .animate-float-2 { animation: float-particle 8s ease-in-out infinite 1s; }
 .animate-float-3 { animation: float-particle 7s ease-in-out infinite 2s; }
-
-.animate-card-enter {
-  animation: card-enter 0.4s ease-out both;
-}
-
-/* Staggered card entry */
-.agent-card:nth-child(1) { animation-delay: 0.05s; }
-.agent-card:nth-child(2) { animation-delay: 0.1s; }
-.agent-card:nth-child(3) { animation-delay: 0.15s; }
-.agent-card:nth-child(4) { animation-delay: 0.2s; }
-.agent-card:nth-child(5) { animation-delay: 0.25s; }
-.agent-card:nth-child(6) { animation-delay: 0.3s; }
-.agent-card:nth-child(7) { animation-delay: 0.35s; }
-.agent-card:nth-child(8) { animation-delay: 0.4s; }
-.agent-card:nth-child(9) { animation-delay: 0.45s; }
-.agent-card:nth-child(10) { animation-delay: 0.5s; }
-.agent-card:nth-child(11) { animation-delay: 0.55s; }
-
-/* ═══════════════════════════════════════════════
-   DETAIL MODAL OVERLAY
-   ═══════════════════════════════════════════════ */
+.animate-card-enter { animation: card-enter 0.4s ease-out both; }
 
 .modal-overlay {
   position: fixed;
@@ -439,36 +290,398 @@
   justify-content: center;
   animation: fade-in-up 0.2s ease-out;
 }
-
-.modal-content {
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* ═══════════════════════════════════════════════
-   BACKGROUND EFFECTS
-   ═══════════════════════════════════════════════ */
+.modal-content { max-height: 92vh; overflow-y: auto; }
 
 .rpg-bg-pattern {
-  background-image:
-    radial-gradient(circle at 20% 50%, rgba(52, 211, 153, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 50% 80%, rgba(167, 139, 250, 0.02) 0%, transparent 50%);
+  background-image: radial-gradient(circle at 20% 50%, rgba(52, 211, 153, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(251, 191, 36, 0.03) 0%, transparent 50%), radial-gradient(circle at 50% 80%, rgba(167, 139, 250, 0.02) 0%, transparent 50%);
 }
-
 .rpg-grid-bg {
-  background-image:
-    linear-gradient(rgba(52, 211, 153, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(52, 211, 153, 0.02) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(52, 211, 153, 0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(52, 211, 153, 0.02) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-   ═══════════════════════════════════════════════ */
+.agents-hero-panel {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+}
+.agents-hero-kicker, .guild-map-kicker, .guild-room-inspector-kicker {
+  font-family: var(--font-pixel);
+  font-size: 0.5rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gh-gold);
+}
+.agents-hero-title, .guild-map-title, .guild-room-inspector-title {
+  margin-top: 0.5rem;
+  font-size: clamp(1.5rem, 2.8vw, 2.4rem);
+  line-height: 1.05;
+  font-weight: 700;
+  color: #f8fafc;
+}
+.agents-hero-copy, .guild-map-subtitle, .guild-room-inspector-description, .guild-room-inspector-copy {
+  margin-top: 0.75rem;
+  color: var(--gh-text-dim);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+.agents-hero-metrics, .guild-map-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-content: start;
+}
+.agents-hero-metric, .guild-map-summary-card {
+  border: 1px solid rgba(200, 168, 78, 0.22);
+  background: rgba(10, 14, 24, 0.7);
+  padding: 0.9rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.agents-hero-metric strong, .guild-map-summary-value {
+  color: #fff4c2;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+.agents-hero-metric span, .guild-map-summary-label { color: var(--gh-text-dim); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem; }
+
+.agent-illustration-card {
+  text-align: left;
+  overflow: hidden;
+  border: 1px solid rgba(200, 168, 78, 0.25);
+  background: linear-gradient(180deg, rgba(25, 28, 46, 0.95), rgba(11, 14, 25, 0.98));
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.agent-illustration-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 26px rgba(251, 191, 36, 0.08);
+}
+.agent-illustration-hero {
+  position: relative;
+  min-height: 380px;
+  background: radial-gradient(circle at top, rgba(251, 191, 36, 0.08), transparent 42%), #090c14;
+}
+.agent-illustration-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+.agent-illustration-overlay, .agent-detail-hero-overlay, .guild-room-vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(4, 7, 14, 0.08) 0%, rgba(4, 7, 14, 0.2) 30%, rgba(4, 7, 14, 0.84) 100%);
+}
+.agent-card-topline, .agent-card-status, .agent-card-copy { position: absolute; z-index: 2; }
+.agent-card-topline {
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.agent-card-emoji, .agent-card-level {
+  background: rgba(8, 12, 20, 0.7);
+  border: 1px solid rgba(251, 191, 36, 0.28);
+  padding: 0.35rem 0.55rem;
+  color: #fff3c4;
+  backdrop-filter: blur(8px);
+}
+.agent-card-status {
+  top: 4rem;
+  left: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+}
+.agent-card-copy {
+  left: 1rem;
+  right: 1rem;
+  bottom: 1.2rem;
+}
+.agent-card-kicker { color: var(--gh-gold-light); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.agent-card-name { font-size: 2rem; line-height: 1; font-weight: 700; color: white; margin-top: 0.2rem; }
+.agent-card-class { color: var(--gh-text-dim); font-size: 1rem; margin-top: 0.35rem; }
+.agent-card-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.95rem; }
+.agent-card-xp-row, .agent-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; color: var(--gh-text-dim); font-size: 0.86rem; }
+.agent-card-xp-row strong, .agent-card-footer strong { color: white; font-size: 0.95rem; }
+.agent-card-statchips, .guild-room-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.agent-card-statchip, .guild-room-tag {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.78);
+  color: #d7e2f0;
+  font-size: 0.76rem;
+  padding: 0.3rem 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.agent-card-lore { color: var(--gh-text-dim); line-height: 1.55; font-size: 0.95rem; }
+.agent-card-footer { align-items: flex-start; }
+.agent-card-footer > div { display: flex; flex-direction: column; gap: 0.15rem; }
+.agent-card-footer-label { color: var(--gh-text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.68rem; }
+
+.guild-map-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.8fr);
+  gap: 1.25rem;
+  padding: 1.4rem;
+  border: 1px solid rgba(200, 168, 78, 0.22);
+  background: linear-gradient(180deg, rgba(18, 24, 42, 0.92), rgba(9, 11, 20, 0.98));
+}
+.guild-map-layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr); gap: 1rem; min-height: 0; }
+.guild-map-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "library throne forge"
+    "range tavern treasury"
+    "tower walls sanctuary";
+  align-items: stretch;
+}
+.guild-room-card {
+  overflow: hidden;
+  border: 1px solid rgba(200, 168, 78, 0.18);
+  background: rgba(10, 12, 22, 0.9);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+.guild-room-card:hover, .guild-room-card.is-selected {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.45);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 18px rgba(251, 191, 36, 0.08);
+}
+.guild-room-art { position: relative; aspect-ratio: 1.4 / 1; overflow: hidden; }
+.guild-room-image { width: 100%; height: 100%; object-fit: cover; image-rendering: pixelated; }
+.guild-room-missing-art {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+  color: rgba(255,255,255,0.82);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+}
+.guild-room-path-overlay {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: 18%;
+  height: 20%;
+  border-top: 2px dashed rgba(255,255,255,0.18);
+  border-radius: 999px;
+  opacity: 0.8;
+}
+.guild-room-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.guild-room-kicker { font-size: 0.72rem; color: var(--gh-gold-light); text-transform: uppercase; letter-spacing: 0.08em; }
+.guild-room-title { color: white; font-size: 1.2rem; font-weight: 700; }
+.guild-room-status {
+  align-self: start;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid rgba(148,163,184,.2);
+  color: var(--gh-text-dim);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+.guild-room-status.ready { color: var(--gh-emerald); border-color: rgba(52,211,153,.3); background: rgba(52,211,153,.12); }
+.guild-room-status.needs-art { color: var(--gh-gold-light); border-color: rgba(251,191,36,.3); background: rgba(251,191,36,.08); }
+.guild-room-description { color: var(--gh-text-dim); line-height: 1.5; font-size: 0.94rem; }
+.guild-room-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+.guild-room-meta > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-top: 1px solid rgba(148,163,184,.14);
+  padding-top: 0.55rem;
+}
+.guild-room-meta-label { color: var(--gh-text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.68rem; }
+.guild-room-meta-value { color: white; font-size: 0.9rem; }
+.guild-room-inspector { padding: 1.2rem; display: flex; flex-direction: column; gap: 1rem; min-height: 0; }
+.guild-room-inspector-section { display: flex; flex-direction: column; gap: 0.6rem; }
+.guild-palette-row, .guild-room-agent-list, .guild-path-list { display: flex; flex-direction: column; gap: 0.55rem; }
+.guild-palette-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.6rem;
+  background: rgba(8, 12, 22, 0.65);
+  border: 1px solid rgba(148,163,184,.14);
+}
+.guild-palette-chip span { width: 1.1rem; height: 1.1rem; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); }
+.guild-palette-chip code, .guild-path-node code { color: var(--gh-gold-light); font-size: 0.8rem; }
+.guild-path-node {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0.6rem;
+  background: rgba(8, 12, 22, 0.65);
+  border: 1px solid rgba(148,163,184,.14);
+  color: var(--gh-text-dim);
+}
+.guild-room-agent-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0.75rem;
+  background: rgba(8, 12, 22, 0.7);
+  border: 1px solid rgba(148,163,184,.14);
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.guild-room-agent-item:hover { transform: translateY(-2px); border-color: rgba(251,191,36,.25); }
+.guild-room-agent-avatar, .guild-room-agent-avatar-img { width: 2.25rem; height: 2.25rem; }
+.guild-room-agent-avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(200,168,78,.3);
+  background: rgba(255,255,255,.04);
+  overflow: hidden;
+}
+.guild-room-agent-avatar-img, .guild-room-sprite, .agent-detail-sprite-preview { object-fit: contain; image-rendering: pixelated; width: 100%; height: 100%; }
+.guild-room-agent-name { color: white; font-weight: 600; }
+.guild-room-agent-role { color: var(--gh-text-dim); font-size: 0.85rem; }
+.guild-room-agent-status {
+  border: 1px solid;
+  padding: 0.25rem 0.45rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.guild-sprite-shell {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  background: rgba(2, 6, 15, 0.45);
+  border: 1px solid rgba(200,168,78,.22);
+  box-shadow: 0 4px 12px rgba(0,0,0,.35);
+  backdrop-filter: blur(2px);
+}
+.guild-sprite-status {
+  position: absolute;
+  top: 0.05rem;
+  right: 0.05rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(4,7,14,.75);
+  z-index: 3;
+}
+.guild-sprite-nameplate {
+  padding: 0.12rem 0.35rem;
+  background: rgba(8, 12, 20, 0.65);
+  border: 1px solid rgba(255,255,255,.08);
+  color: white;
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.agent-detail-hero {
+  position: relative;
+  min-height: 560px;
+  overflow: hidden;
+  border: 1px solid rgba(200,168,78,.22);
+  background: radial-gradient(circle at top, rgba(251,191,36,.08), transparent 40%), #090c14;
+}
+.agent-detail-hero-image { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+.agent-detail-hero-copy { position: absolute; left: 1.2rem; right: 1.2rem; bottom: 1.2rem; z-index: 2; }
+.agent-detail-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.4rem 0.65rem;
+  border: 1px solid rgba(167, 139, 250, 0.35);
+  background: rgba(26, 17, 43, 0.55);
+  color: #d8c5ff;
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.agent-detail-chip.amber { border-color: rgba(245, 158, 11, 0.3); background: rgba(120, 53, 15, 0.35); color: #fde68a; }
+.agent-detail-chip.emerald { border-color: rgba(52, 211, 153, 0.3); background: rgba(6, 95, 70, 0.35); color: #bbf7d0; }
+.agent-detail-lore { color: white; font-size: 1.02rem; line-height: 1.65; margin-top: 0.9rem; max-width: 42rem; }
+.agent-detail-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+.agent-detail-facts div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  border-top: 1px solid rgba(148,163,184,.14);
+  padding-top: 0.55rem;
+}
+.agent-detail-facts span { color: var(--gh-text-faint); text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.68rem; }
+.agent-detail-facts strong { color: white; }
+.agent-detail-sprite-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+.agent-detail-sprite-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem;
+  border: 1px solid rgba(148,163,184,.14);
+  background: rgba(8, 12, 22, 0.65);
+  color: var(--gh-text-dim);
+  text-transform: uppercase;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+}
+.agent-detail-sprite-preview { width: 48px; height: 48px; }
+.agent-detail-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  color: var(--gh-text-dim);
+  line-height: 1.5;
+  padding-left: 1rem;
+  list-style: disc;
+}
+
+@media (max-width: 1280px) {
+  .guild-map-layout, .agents-hero-panel, .guild-map-hero { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 1024px) {
+  .guild-map-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "library throne"
+      "forge range"
+      "tavern treasury"
+      "walls tower"
+      "sanctuary sanctuary";
+  }
+}
 
 @media (max-width: 768px) {
-  :root {
-    --header-height: 60px;
-  }
+  :root { --header-height: 60px; }
+  .guild-map-grid { grid-template-columns: 1fr; grid-template-areas: "throne" "forge" "library" "range" "tavern" "treasury" "walls" "tower" "sanctuary"; }
+  .agents-hero-metrics, .guild-map-summary-grid, .agent-detail-facts, .agent-detail-sprite-row, .guild-room-meta { grid-template-columns: 1fr 1fr; }
+  .agent-illustration-hero { min-height: 300px; }
+  .agent-detail-hero { min-height: 400px; }
 }

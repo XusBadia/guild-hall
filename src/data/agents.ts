@@ -10,6 +10,8 @@ export interface AgentStats {
   endurance: number;
 }
 
+export type SpriteDirection = "north" | "south" | "east" | "west";
+
 export interface GuildAgent {
   _id: string;
   name: string;
@@ -33,7 +35,19 @@ export interface GuildAgent {
   lore: string;
   character: string;
   spriteSheet: string;
+  illustration: string;
+  mapSprite: Record<SpriteDirection, string>;
+  roomAssignment: string;
 }
+
+const makeMapSprite = (slug: string) => ({
+  north: `/map/sprites/${slug}/north.png`,
+  south: `/map/sprites/${slug}/south.png`,
+  east: `/map/sprites/${slug}/east.png`,
+  west: `/map/sprites/${slug}/west.png`,
+});
+
+const makeIllustration = (slug: string) => `/agents/${slug}.png`;
 
 export const GUILD_AGENTS: GuildAgent[] = [
   {
@@ -59,6 +73,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A sharp-witted green cat who runs the guild. Tribute to Felix, the late father. Part advisor, part co-pilot, part chaos gremlin.",
     character: "cat",
     spriteSheet: "/sprites/flix-sheet.png",
+    illustration: makeIllustration("flix"),
+    mapSprite: makeMapSprite("flix"),
+    roomAssignment: "throne-room",
   },
   {
     _id: "static-arcanix",
@@ -83,6 +100,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "An owl mage who devours knowledge. Specializes in deep research, academic papers, and arcane analysis.",
     character: "owl",
     spriteSheet: "/sprites/arcanix-sheet.png",
+    illustration: makeIllustration("arcanix"),
+    mapSprite: makeMapSprite("arcanix"),
+    roomAssignment: "library",
   },
   {
     _id: "static-bugbane",
@@ -107,6 +127,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A red fox with keen eyes for bugs. Tests everything, trusts nothing. The guild's last line of defense.",
     character: "fox",
     spriteSheet: "/sprites/bugbane-sheet.png",
+    illustration: makeIllustration("bugbane"),
+    mapSprite: makeMapSprite("bugbane"),
+    roomAssignment: "range",
   },
   {
     _id: "static-forgex",
@@ -131,6 +154,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A steampunk raccoon who builds things. Codes, creates, and constructs. The guild's master craftsman.",
     character: "raccoon",
     spriteSheet: "/sprites/forgex-sheet.png",
+    illustration: makeIllustration("forgex"),
+    mapSprite: makeMapSprite("forgex"),
+    roomAssignment: "forge",
   },
   {
     _id: "static-goldrak",
@@ -155,6 +181,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A baby dragon who guards the treasury. Tracks expenses, invoices, and taxes. Evolved from generic finance to personal fiscal advisor.",
     character: "dragon",
     spriteSheet: "/sprites/goldrak-sheet.png",
+    illustration: makeIllustration("goldrak"),
+    mapSprite: makeMapSprite("goldrak"),
+    roomAssignment: "treasury",
   },
   {
     _id: "static-herald",
@@ -179,6 +208,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A falcon who patrols the skies for news. First to spot trends, events, and breaking stories.",
     character: "falcon",
     spriteSheet: "/sprites/herald-sheet.png",
+    illustration: makeIllustration("herald"),
+    mapSprite: makeMapSprite("herald"),
+    roomAssignment: "walls",
   },
   {
     _id: "static-luminos",
@@ -203,6 +235,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A firefly that controls the home. Commands lights, climate, and appliances through Home Assistant.",
     character: "firefly",
     spriteSheet: "/sprites/luminos-sheet.png",
+    illustration: makeIllustration("luminos"),
+    mapSprite: makeMapSprite("luminos"),
+    roomAssignment: "tower",
   },
   {
     _id: "static-quillon",
@@ -227,6 +262,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A colorful parrot who weaves words into stories. Creates content, writes copy, and entertains the masses.",
     character: "parrot",
     spriteSheet: "/sprites/quillon-sheet.png",
+    illustration: makeIllustration("quillon"),
+    mapSprite: makeMapSprite("quillon"),
+    roomAssignment: "tavern",
   },
   {
     _id: "static-sentinel",
@@ -251,6 +289,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A German Shepherd knight who never sleeps. Guards the guild, monitors systems, and ensures uptime.",
     character: "german-shepherd",
     spriteSheet: "/sprites/sentinel-sheet.png",
+    illustration: makeIllustration("sentinel"),
+    mapSprite: makeMapSprite("sentinel"),
+    roomAssignment: "walls",
   },
   {
     _id: "static-spectra",
@@ -275,6 +316,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A ghost cat that slips through the web unseen. Scrapes data, monitors competitors, and gathers intel.",
     character: "ghost-cat",
     spriteSheet: "/sprites/spectra-sheet.png",
+    illustration: makeIllustration("spectra"),
+    mapSprite: makeMapSprite("spectra"),
+    roomAssignment: "library",
   },
   {
     _id: "static-vitalis",
@@ -299,6 +343,9 @@ export const GUILD_AGENTS: GuildAgent[] = [
     lore: "A gentle fawn who understands medicine. Assists with clinical research, medical content, and health data.",
     character: "fawn",
     spriteSheet: "/sprites/vitalis-sheet.png",
+    illustration: makeIllustration("vitalis"),
+    mapSprite: makeMapSprite("vitalis"),
+    roomAssignment: "sanctuary",
   },
 ];
 

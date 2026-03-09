@@ -14,6 +14,13 @@ import MapView from "./components/rpg/MapView";
 import MissionsView from "./components/rpg/MissionsView";
 import StatsView from "./components/rpg/StatsView";
 
+const defaultMapSprite = (slug: string) => ({
+  north: `/map/sprites/${slug}/north.png`,
+  south: `/map/sprites/${slug}/south.png`,
+  east: `/map/sprites/${slug}/east.png`,
+  west: `/map/sprites/${slug}/west.png`,
+});
+
 function useGuildAgents(): GuildAgent[] {
   // Try to fetch from Convex, fall back to static data
   let convexAgents: any[] | undefined;
@@ -50,6 +57,9 @@ function useGuildAgents(): GuildAgent[] {
         lore: ca.lore || staticMatch?.lore || "",
         character: ca.character || staticMatch?.character || "",
         spriteSheet: staticMatch?.spriteSheet || `/sprites/${(ca.avatar || ca.name.toLowerCase())}-sheet.png`,
+        illustration: staticMatch?.illustration || `/agents/${(ca.avatar || ca.name.toLowerCase())}.png`,
+        mapSprite: staticMatch?.mapSprite || defaultMapSprite(ca.avatar || ca.name.toLowerCase()),
+        roomAssignment: staticMatch?.roomAssignment || "throne-room",
       };
     });
   }

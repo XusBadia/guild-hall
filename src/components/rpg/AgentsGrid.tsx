@@ -13,62 +13,47 @@ export default function AgentsGrid({ agents }: AgentsGridProps) {
   const activeCount = agents.filter((a) => a.status === "active").length;
   const idleCount = agents.filter((a) => a.status === "idle").length;
   const totalTasks = agents.reduce((sum, a) => sum + a.rpgTasksCompleted, 0);
+  const averageLevel = (agents.reduce((sum, a) => sum + a.rpgLevel, 0) / agents.length).toFixed(1);
 
   return (
-    <div className="flex flex-col gap-5 h-full overflow-y-auto p-4 md:p-6 rpg-bg-pattern rpg-grid-bg">
+    <div className="flex h-full flex-col gap-5 overflow-y-auto p-4 md:p-6 rpg-bg-pattern">
+      <section className="agents-hero-panel rpg-panel-gold">
+        <div>
+          <div className="agents-hero-kicker">⚔ Guild roster</div>
+          <h2 className="agents-hero-title">Full character art, not placeholder sprites.</h2>
+          <p className="agents-hero-copy">
+            The roster now reads like a party screen: hero illustrations up front, room assignments underneath,
+            and enough stat context to understand why each specialist belongs in the guild.
+          </p>
+        </div>
 
-      {/* Section header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <h2 className="font-pixel text-[9px] md:text-[10px]" style={{ color: "var(--gh-gold)" }}>
-            ⚔ GUILD ROSTER
-          </h2>
-          <div
-            className="font-rpg text-sm px-2 py-0.5 rounded-sm"
-            style={{
-              background: "rgba(52, 211, 153, 0.1)",
-              color: "var(--gh-emerald)",
-              border: "1px solid var(--gh-emerald-dim)",
-            }}
-          >
-            {activeCount} active
+        <div className="agents-hero-metrics">
+          <div className="agents-hero-metric">
+            <strong>{activeCount}</strong>
+            <span>active</span>
           </div>
-          <div
-            className="font-rpg text-sm px-2 py-0.5 rounded-sm"
-            style={{
-              background: "rgba(148, 163, 184, 0.05)",
-              color: "var(--gh-text-faint)",
-              border: "1px solid var(--gh-border)",
-            }}
-          >
-            {idleCount} idle
+          <div className="agents-hero-metric">
+            <strong>{idleCount}</strong>
+            <span>idle</span>
+          </div>
+          <div className="agents-hero-metric">
+            <strong>{averageLevel}</strong>
+            <span>avg lv</span>
+          </div>
+          <div className="agents-hero-metric">
+            <strong>{totalTasks}</strong>
+            <span>quests done</span>
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-4">
-          <span className="font-rpg text-sm" style={{ color: "var(--gh-text-faint)" }}>
-            ⚔ {totalTasks} total quests
-          </span>
-        </div>
-      </div>
+      </section>
 
-      {/* Agent Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {agents.map((agent) => (
-          <AgentCard
-            key={agent._id}
-            agent={agent}
-            onClick={() => setSelectedAgent(agent)}
-          />
+          <AgentCard key={agent._id} agent={agent} onClick={() => setSelectedAgent(agent)} />
         ))}
       </div>
 
-      {/* Agent Detail Modal */}
-      {selectedAgent && (
-        <AgentDetail
-          agent={selectedAgent}
-          onClose={() => setSelectedAgent(null)}
-        />
-      )}
+      {selectedAgent && <AgentDetail agent={selectedAgent} onClose={() => setSelectedAgent(null)} />}
     </div>
   );
 }
