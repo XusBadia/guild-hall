@@ -1,12 +1,11 @@
-import { useAuthActions } from "@convex-dev/auth/react";
+import { signIn } from "../lib/auth-client";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 import { useState } from "react";
 
 function SignInForm() {
-	const { signIn } = useAuthActions();
-	const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
 	const [error, setError] = useState<string | null>(null);
 	const [showPassword, setShowPassword] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-background p-4 font-sans">
@@ -21,22 +20,32 @@ function SignInForm() {
 						Mission Control
 					</h1>
 					<p className="mt-2 text-sm text-muted-foreground font-medium">
-						{flow === "signIn"
-							? "Welcome back, Commander."
-							: "New Personnel Registration"}
+						Welcome back, Commander.
 					</p>
 				</div>
 
 				<div className="p-8">
 					<form
 						className="space-y-5"
-						onSubmit={(e) => {
+						onSubmit={async (e) => {
 							e.preventDefault();
+							setError(null);
+							setLoading(true);
+
 							const formData = new FormData(e.target as HTMLFormElement);
-							formData.set("flow", flow);
-							void signIn("password", formData).catch((error) => {
-								setError(error.message);
+							const email = formData.get("email") as string;
+							const password = formData.get("password") as string;
+
+							const { error: signInError } = await signIn.email({
+								email,
+								password,
 							});
+
+							setLoading(false);
+
+							if (signInError) {
+								setError(signInError.message || "Authentication failed");
+							}
 						}}
 					>
 						<div className="space-y-4">
@@ -56,7 +65,7 @@ function SignInForm() {
 									required
 								/>
 							</div>
-							<div className="space-y-1.5 ">
+							<div className="space-y-1.5">
 								<label
 									className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1"
 									htmlFor="password"
@@ -88,23 +97,12 @@ function SignInForm() {
 						</div>
 
 						<button
-							className="w-full bg-foreground text-background font-bold py-3 px-4 rounded-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-md uppercase tracking-widest cursor-pointer"
+							className="w-full bg-foreground text-background font-bold py-3 px-4 rounded-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-md uppercase tracking-widest cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 							type="submit"
+							disabled={loading}
 						>
-							{flow === "signIn" ? "Execute Login" : "Initialize Account"}
+							{loading ? "Authenticating..." : "Execute Login"}
 						</button>
-
-						<div className="text-center">
-							<button
-								type="button"
-								className="text-xs font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 cursor-pointer"
-								onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
-							>
-								{flow === "signIn"
-									? "No credentials? Initialize new account."
-									: "Already registered? Execute login."}
-							</button>
-						</div>
 
 						{error && (
 							<div className="mt-4 animate-in fade-in slide-in-from-top-2">

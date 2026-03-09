@@ -1,20 +1,17 @@
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth } from "convex/react";
+import { signOut, useSession } from "../lib/auth-client";
 
 function SignOutButton() {
-	const { isAuthenticated } = useConvexAuth();
-	const { signOut } = useAuthActions();
+	const { data: session } = useSession();
+
+	if (!session) return null;
+
 	return (
-		<>
-			{isAuthenticated && (
-				<button
-					className="bg-destructive text-destructive-foreground rounded-md px-2 py-1 cursor-pointer hover:bg-destructive/80"
-					onClick={() => void signOut()}
-				>
-					Sign out
-				</button>
-			)}
-		</>
+		<button
+			className="bg-destructive text-destructive-foreground rounded-md px-2 py-1 cursor-pointer hover:bg-destructive/80"
+			onClick={() => void signOut()}
+		>
+			Sign out
+		</button>
 	);
 }
 

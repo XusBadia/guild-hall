@@ -1,7 +1,7 @@
 "use client";
 
-import { Authenticated, Unauthenticated } from "convex/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSession } from "./lib/auth-client";
 import { Id } from "../convex/_generated/dataModel";
 import Header from "./components/Header";
 import AgentsSidebar from "./components/AgentsSidebar";
@@ -85,9 +85,24 @@ export default function App() {
 		setShowPreviewTray(true);
 	}, []);
 
+	const { data: session, isPending } = useSession();
+
+	if (isPending) {
+		return (
+			<div className="flex min-h-screen items-center justify-center bg-background">
+				<div className="text-muted-foreground text-sm tracking-widest uppercase animate-pulse">
+					Initializing...
+				</div>
+			</div>
+		);
+	}
+
+	if (!session) {
+		return <SignInForm />;
+	}
+
 	return (
 		<>
-			<Authenticated>
 				<main className="app-container">
 					<Header
 						onOpenAgents={() => {
@@ -183,10 +198,6 @@ export default function App() {
 						</>
 					)}
 				</main>
-			</Authenticated>
-			<Unauthenticated>
-				<SignInForm />
-			</Unauthenticated>
 		</>
 	);
 }

@@ -1,10 +1,5 @@
-import { AuthConfig } from "convex/server";
-
+// Auth is now handled by better-auth (external to Convex).
+// This file is kept as a minimal placeholder.
 export default {
-	providers: [
-		{
-			domain: process.env.CONVEX_SITE_URL!,
-			applicationID: "convex",
-		},
-	],
-} satisfies AuthConfig;
+	providers: [],
+};

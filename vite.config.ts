@@ -45,9 +45,14 @@ export default defineConfig({
 		},
 	],
 	server: {
+		allowedHosts: ["mac-mini-de-xus.tail90936e.ts.net"],
 		proxy: {
 			"/hooks": {
 				target: "http://127.0.0.1:18789",
+				changeOrigin: true,
+			},
+			"/api/auth": {
+				target: "http://127.0.0.1:3001",
 				changeOrigin: true,
 			},
 		},
