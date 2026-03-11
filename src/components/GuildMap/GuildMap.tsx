@@ -159,7 +159,7 @@ const LIBRARY_ROOM: RoomDefinition = {
   nameEs: "Biblioteca Arcana",
   description:
     "Research stacks, glowing indexes, and quiet surveillance corners for deeper intel work.",
-  image: "/map/rooms/arcane-library.png",
+  image: "/map/rooms/arcane-library-v2-room.png",
   fallbackGradient: "linear-gradient(135deg, rgba(16,58,45,.96), rgba(8,18,22,.92))",
   width: 14,
   height: 8,
