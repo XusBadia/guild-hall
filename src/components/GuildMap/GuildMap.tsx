@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { GuildAgent, SpriteDirection } from "../../data/agents";
 
-const TILE_SIZE = 24;
+const TILE_SIZE = 48;
 
 interface TileCoord {
   x: number;
@@ -709,10 +709,6 @@ function TileMapRoom({
       </div>
 
       <div className="rpg-map-stage-wrap">
-        <div className="rpg-map-stage-art" style={{ background: room.fallbackGradient }}>
-          {room.image ? <img src={room.image} alt={room.nameEs} className="rpg-map-stage-art-image" /> : null}
-        </div>
-
         <div
           className="rpg-map-stage"
           style={{
@@ -720,6 +716,10 @@ function TileMapRoom({
             height: room.height * TILE_SIZE,
             gridTemplateColumns: `repeat(${room.width}, ${TILE_SIZE}px)`,
             gridTemplateRows: `repeat(${room.height}, ${TILE_SIZE}px)`,
+            background: room.image
+              ? `url(${room.image}) center/100% 100% no-repeat`
+              : room.fallbackGradient,
+            imageRendering: "pixelated",
           }}
         >
           {room.floorPattern.flatMap((row, y) =>
