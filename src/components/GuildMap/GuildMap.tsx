@@ -153,20 +153,369 @@ const FORGE_ROOM: RoomDefinition = {
   spriteLayout: DEFAULT_LAYOUT,
 };
 
-const ROOM_ORDER = [THRONE_ROOM, FORGE_ROOM] satisfies RoomDefinition[];
+const LIBRARY_ROOM: RoomDefinition = {
+  id: "library",
+  name: "Arcane Library",
+  nameEs: "Biblioteca Arcana",
+  description:
+    "Research stacks, glowing indexes, and quiet surveillance corners for deeper intel work.",
+  image: "/map/rooms/arcane-library.png",
+  fallbackGradient: "linear-gradient(135deg, rgba(16,58,45,.96), rgba(8,18,22,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##bbbb..ssss##",
+    "##bb......ss##",
+    "##..........##",
+    "##....TT....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Arcanix: { x: 4, y: 4 },
+    Spectra: { x: 9, y: 4 },
+  },
+  patrols: {
+    Arcanix: [
+      { x: 3, y: 4, pauseMs: 900 },
+      { x: 4, y: 4 },
+      { x: 5, y: 4, pauseMs: 1100 },
+      { x: 4, y: 4 },
+    ],
+    Spectra: [
+      { x: 8, y: 4, pauseMs: 800 },
+      { x: 9, y: 4 },
+      { x: 10, y: 4, pauseMs: 700 },
+      { x: 9, y: 4 },
+    ],
+  },
+  defaultFacing: { Arcanix: "south", Spectra: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const QA_RANGE: RoomDefinition = {
+  id: "range",
+  name: "QA Range",
+  nameEs: "Campo de Tiro",
+  description:
+    "Precision testing grounds for bug hunts, QA practice, and challenge runs.",
+  fallbackGradient: "linear-gradient(135deg, rgba(61,82,26,.96), rgba(24,17,8,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##tttt..xxxx##",
+    "##tt......xx##",
+    "##..........##",
+    "##..........##",
+    "##....cc....##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##..........##",
+    "##....##....##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Bugbane: { x: 6, y: 4 },
+  },
+  patrols: {
+    Bugbane: [
+      { x: 5, y: 4, pauseMs: 800 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4, pauseMs: 1000 },
+      { x: 6, y: 4 },
+    ],
+  },
+  defaultFacing: { Bugbane: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const TREASURY_ROOM: RoomDefinition = {
+  id: "treasury",
+  name: "Dragon Treasury",
+  nameEs: "Cueva del Dragón",
+  description:
+    "Vault room for coins, invoices, ledgers, and draconic financial oversight.",
+  fallbackGradient: "linear-gradient(135deg, rgba(104,62,12,.97), rgba(30,14,5,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##gggg..LLLL##",
+    "##gg......LL##",
+    "##..........##",
+    "##....NN....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Goldrak: { x: 6, y: 4 },
+  },
+  patrols: {
+    Goldrak: [
+      { x: 5, y: 4, pauseMs: 900 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4, pauseMs: 1300 },
+      { x: 6, y: 4 },
+    ],
+  },
+  defaultFacing: { Goldrak: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const WALLS_ROOM: RoomDefinition = {
+  id: "walls",
+  name: "The Walls",
+  nameEs: "Las Murallas",
+  description:
+    "Perimeter overlook where security and scouting agents patrol the frontier.",
+  fallbackGradient: "linear-gradient(135deg, rgba(61,67,89,.96), rgba(16,20,30,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##WWWW..WWWW##",
+    "##WW......WW##",
+    "##..........##",
+    "##....hh....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Herald: { x: 4, y: 4 },
+    Sentinel: { x: 9, y: 4 },
+  },
+  patrols: {
+    Herald: [
+      { x: 3, y: 4, pauseMs: 700 },
+      { x: 4, y: 4 },
+      { x: 5, y: 4, pauseMs: 900 },
+      { x: 4, y: 4 },
+    ],
+    Sentinel: [
+      { x: 8, y: 4, pauseMs: 900 },
+      { x: 9, y: 4 },
+      { x: 10, y: 4, pauseMs: 700 },
+      { x: 9, y: 4 },
+    ],
+  },
+  defaultFacing: { Herald: "east", Sentinel: "west" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const TOWER_ROOM: RoomDefinition = {
+  id: "tower",
+  name: "Lightning Tower",
+  nameEs: "Torre del Rayo",
+  description:
+    "Home systems control room filled with electric conduits and ambient automation magic.",
+  fallbackGradient: "linear-gradient(135deg, rgba(28,67,110,.97), rgba(11,16,33,.93))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##eeee..cccc##",
+    "##ee......cc##",
+    "##..........##",
+    "##....PP....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Luminos: { x: 6, y: 4 },
+  },
+  patrols: {
+    Luminos: [
+      { x: 5, y: 4, pauseMs: 900 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4, pauseMs: 1100 },
+      { x: 6, y: 4 },
+    ],
+  },
+  defaultFacing: { Luminos: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const TAVERN_ROOM: RoomDefinition = {
+  id: "tavern",
+  name: "Bard Tavern",
+  nameEs: "La Taberna",
+  description:
+    "Performance room where stories, scripts, and content ideas get hammered into shape.",
+  fallbackGradient: "linear-gradient(135deg, rgba(101,58,31,.97), rgba(35,18,10,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##pppp..dddd##",
+    "##pp......dd##",
+    "##..........##",
+    "##....SS....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Quillon: { x: 6, y: 4 },
+  },
+  patrols: {
+    Quillon: [
+      { x: 5, y: 4, pauseMs: 1100 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4, pauseMs: 800 },
+      { x: 6, y: 4 },
+    ],
+  },
+  defaultFacing: { Quillon: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const SANCTUARY_ROOM: RoomDefinition = {
+  id: "sanctuary",
+  name: "Vitalis Sanctuary",
+  nameEs: "Santuario de Vitalis",
+  description:
+    "Healing and clinical reflection room with calm light and organized medical reference surfaces.",
+  fallbackGradient: "linear-gradient(135deg, rgba(32,95,66,.97), rgba(10,25,20,.92))",
+  width: 14,
+  height: 8,
+  floorPattern: [
+    "##############",
+    "##hhhh..mmmm##",
+    "##hh......mm##",
+    "##..........##",
+    "##....ff....##",
+    "##..........##",
+    "##....DD....##",
+    "##############",
+  ],
+  collisionPattern: [
+    "##############",
+    "######..######",
+    "####......####",
+    "##..........##",
+    "##....##....##",
+    "##..........##",
+    "##....##....##",
+    "##############",
+  ],
+  spawnPoints: {
+    Vitalis: { x: 6, y: 4 },
+  },
+  patrols: {
+    Vitalis: [
+      { x: 5, y: 4, pauseMs: 1300 },
+      { x: 6, y: 4 },
+      { x: 7, y: 4, pauseMs: 800 },
+      { x: 6, y: 4 },
+    ],
+  },
+  defaultFacing: { Vitalis: "south" },
+  spriteLayout: DEFAULT_LAYOUT,
+};
+
+const ROOM_ORDER = [
+  THRONE_ROOM,
+  FORGE_ROOM,
+  LIBRARY_ROOM,
+  QA_RANGE,
+  TREASURY_ROOM,
+  WALLS_ROOM,
+  TOWER_ROOM,
+  TAVERN_ROOM,
+  SANCTUARY_ROOM,
+] satisfies RoomDefinition[];
 const ROOM_BY_ID = Object.fromEntries(ROOM_ORDER.map((room) => [room.id, room])) as Record<string, RoomDefinition>;
 
 const ROOM_LABELS: Record<string, string> = {
   ".": "Floor",
   "#": "Wall / blocked",
-  T: "Throne dais",
+  T: "Throne dais / Table",
   "=": "Carpet runner",
   "+": "Entrance arch",
   "~": "Furnace zone",
   w: "Workbench",
   A: "Anvil platform",
-  b: "Barrel / tools",
+  b: "Barrel / tools / Bookshelf",
   D: "Door",
+  s: "Surveillance corner",
+  t: "Target",
+  x: "Practice dummy",
+  c: "Control console",
+  g: "Gold pile",
+  L: "Ledger shelf",
+  N: "Nest perch",
+  W: "Wall battlement",
+  h: "Horn post / Herb shelf",
+  e: "Energy conduit",
+  P: "Power core",
+  p: "Props / Performance area",
+  d: "Drafts / Documents",
+  S: "Stage platform",
+  f: "Fountain / Medical station",
+  m: "Medical tomes",
 };
 
 function isBlocked(room: RoomDefinition, x: number, y: number) {
@@ -336,7 +685,15 @@ function getStatusTone(status: GuildAgent["status"]) {
   return { dot: "#94a3b8", label: "IDLE" };
 }
 
-function TileMapRoom({ room, entities }: { room: RoomDefinition; entities: TileEntityState[] }) {
+function TileMapRoom({
+  room,
+  entities,
+  onAgentClick,
+}: {
+  room: RoomDefinition;
+  entities: TileEntityState[];
+  onAgentClick: (agent: GuildAgent) => void;
+}) {
   return (
     <section className="rpg-map-room-panel rpg-panel-gold">
       <div className="rpg-map-room-head">
@@ -392,8 +749,10 @@ function TileMapRoom({ room, entities }: { room: RoomDefinition; entities: TileE
                   top: entity.y * TILE_SIZE,
                   width: TILE_SIZE,
                   height: TILE_SIZE,
+                  cursor: "pointer",
                 }}
                 title={`${entity.agent.name} · ${entity.direction} · tile ${entity.x},${entity.y}`}
+                onClick={() => onAgentClick(entity.agent)}
               >
                 <div className="rpg-map-entity-shadow" />
                 <div
@@ -433,6 +792,8 @@ function TileMapRoom({ room, entities }: { room: RoomDefinition; entities: TileE
 
 export default function GuildMap({ agents }: GuildMapProps) {
   const [entitiesByRoom, setEntitiesByRoom] = useState<Record<string, TileEntityState[]>>(() => buildInitialState(agents));
+  const [selectedRoom, setSelectedRoom] = useState<string>(ROOM_ORDER[0].id);
+  const [inspectedAgent, setInspectedAgent] = useState<GuildAgent | null>(null);
 
   useEffect(() => {
     setEntitiesByRoom(buildInitialState(agents));
@@ -461,51 +822,153 @@ export default function GuildMap({ agents }: GuildMapProps) {
     [entitiesByRoom],
   );
 
+  const currentRoomData = roomSummaries.find((r) => r.room.id === selectedRoom) ?? roomSummaries[0];
+
   return (
-    <div className="flex h-full flex-col gap-5 p-4 md:p-6">
-      <section className="guild-map-hero rpg-panel-gold">
-        <div>
-          <div className="guild-map-kicker">🗺 RPG map system</div>
-          <h2 className="guild-map-title">Tile rooms, 1×1 agents, real collisions.</h2>
-          <p className="guild-map-subtitle">
-            The map now behaves like a small RPG board instead of a dashboard card wall: every agent occupies exactly one tile,
-            movement resolves on a collision grid, and map rendering uses the real 4×4 animated sprite sheets only.
-          </p>
+    <div className="flex h-full gap-4 p-4 md:p-6">
+      {/* Room Selector Sidebar */}
+      <aside className="flex flex-col gap-3 w-64 flex-shrink-0">
+        <div className="rpg-panel-gold p-4">
+          <h3 className="font-pixel text-xs uppercase mb-3" style={{ color: "var(--gh-gold)" }}>
+            Guild Rooms
+          </h3>
+          <div className="flex flex-col gap-2">
+            {roomSummaries.map(({ room, entities }) => (
+              <button
+                key={room.id}
+                type="button"
+                onClick={() => setSelectedRoom(room.id)}
+                className={`p-3 text-left rounded border transition-all ${
+                  selectedRoom === room.id
+                    ? "border-[var(--gh-gold)] bg-[var(--gh-gold)]/10"
+                    : "border-slate-600/30 bg-slate-800/20 hover:border-slate-500/50"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-lg">{room.icon ?? "🏛"}</span>
+                  <span className="font-pixel text-[10px] uppercase text-white/90">{room.name}</span>
+                </div>
+                <div className="text-[10px] text-slate-400 flex items-center gap-2">
+                  <span>{entities.length} agents</span>
+                  {room.image && <span className="text-green-400">✓ art</span>}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="guild-map-summary-grid">
-          <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">{ROOM_ORDER.length}</span>
-            <span className="guild-map-summary-label">tile rooms</span>
+      </aside>
+
+      {/* Main Map Area */}
+      <div className="flex-1 flex flex-col gap-5 overflow-y-auto">
+        <section className="guild-map-hero rpg-panel-gold">
+          <div>
+            <div className="guild-map-kicker">🗺 RPG map system</div>
+            <h2 className="guild-map-title">Tile rooms, 1×1 agents, real collisions.</h2>
+            <p className="guild-map-subtitle">
+              The map now behaves like a small RPG board instead of a dashboard card wall: every agent occupies exactly one tile,
+              movement resolves on a collision grid, and map rendering uses the real 4×4 animated sprite sheets.
+            </p>
           </div>
-          <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">{agents.length}</span>
-            <span className="guild-map-summary-label">1×1 entities</span>
+          <div className="guild-map-summary-grid">
+            <div className="guild-map-summary-card">
+              <span className="guild-map-summary-value">{ROOM_ORDER.length}</span>
+              <span className="guild-map-summary-label">tile rooms</span>
+            </div>
+            <div className="guild-map-summary-card">
+              <span className="guild-map-summary-value">{agents.length}</span>
+              <span className="guild-map-summary-label">1×1 entities</span>
+            </div>
+            <div className="guild-map-summary-card">
+              <span className="guild-map-summary-value">BFS</span>
+              <span className="guild-map-summary-label">pathing / collision</span>
+            </div>
+            <div className="guild-map-summary-card">
+              <span className="guild-map-summary-value">4×4</span>
+              <span className="guild-map-summary-label">animated sheets</span>
+            </div>
           </div>
-          <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">BFS</span>
-            <span className="guild-map-summary-label">pathing / collision</span>
-          </div>
-          <div className="guild-map-summary-card">
-            <span className="guild-map-summary-value">4×4</span>
-            <span className="guild-map-summary-label">animated sheets</span>
+        </section>
+
+        <TileMapRoom
+          room={currentRoomData.room}
+          entities={currentRoomData.entities}
+          onAgentClick={setInspectedAgent}
+        />
+
+        <section className="rpg-panel p-4 rpg-map-notes">
+          <div className="rpg-map-legend-title">Current room data scaffolding</div>
+          <ul>
+            <li>Room definitions include floor pattern, collision pattern, spawn points, patrol nodes, and sprite layout metadata.</li>
+            <li>Throne Room and Forge use current art as background layers while the playable logic lives in tile data.</li>
+            <li>All 11 agents are now placed across 9 rooms with proper tile-based movement and collision.</li>
+          </ul>
+        </section>
+      </div>
+
+      {/* Agent Inspection Popup */}
+      {inspectedAgent && (
+        <div
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+          onClick={() => setInspectedAgent(null)}
+        >
+          <div
+            className="rpg-panel-gold max-w-md w-full p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4 mb-4">
+              <span className="text-4xl">{inspectedAgent.rpgEmoji}</span>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-white mb-1">{inspectedAgent.name}</h3>
+                <p className="text-sm text-slate-300">{inspectedAgent.role}</p>
+                <p className="text-xs text-[var(--gh-gold)] mt-1">{inspectedAgent.rpgClass}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInspectedAgent(null)}
+                className="text-slate-400 hover:text-white text-2xl leading-none"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <span className="text-slate-400 text-xs">Status</span>
+                  <p className="text-white capitalize">{inspectedAgent.status}</p>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-xs">Level</span>
+                  <p className="text-white">LV {inspectedAgent.rpgLevel}</p>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-xs">Zone</span>
+                  <p className="text-white">{inspectedAgent.rpgZone}</p>
+                </div>
+                <div>
+                  <span className="text-slate-400 text-xs">Streak</span>
+                  <p className="text-white">🔥 {inspectedAgent.rpgStreak}</p>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-slate-600/30">
+                <p className="text-sm text-slate-300 leading-relaxed">{inspectedAgent.lore}</p>
+              </div>
+
+              <div className="flex gap-2 flex-wrap pt-2">
+                {Object.entries(inspectedAgent.rpgStats).map(([key, value]) => (
+                  <span
+                    key={key}
+                    className="px-2 py-1 bg-slate-700/50 rounded text-xs text-slate-300"
+                  >
+                    {key.slice(0, 3).toUpperCase()} {value}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-      </section>
-
-      <section className="rpg-map-system-grid">
-        {roomSummaries.map(({ room, entities }) => (
-          <TileMapRoom key={room.id} room={room} entities={entities} />
-        ))}
-      </section>
-
-      <section className="rpg-panel p-4 rpg-map-notes">
-        <div className="rpg-map-legend-title">Current room data scaffolding</div>
-        <ul>
-          <li>Room definitions include floor pattern, collision pattern, spawn points, patrol nodes, and sprite layout metadata.</li>
-          <li>Throne Room and Forge use current art as background layers while the playable logic lives in tile data.</li>
-          <li>Only Flix and Forgex are placed on the live tile map for now because these are the rooms with actual room art references.</li>
-        </ul>
-      </section>
+      )}
     </div>
   );
 }

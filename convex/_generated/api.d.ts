@@ -9,6 +9,7 @@
  */
 
 import type * as agents from "../agents.js";
+import type * as costs from "../costs.js";
 import type * as documents from "../documents.js";
 import type * as fix_loki from "../fix_loki.js";
 import type * as http from "../http.js";
@@ -27,6 +28,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   agents: typeof agents;
+  costs: typeof costs;
   documents: typeof documents;
   fix_loki: typeof fix_loki;
   http: typeof http;

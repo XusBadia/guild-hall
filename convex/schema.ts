@@ -170,4 +170,21 @@ export default defineSchema({
 		activeAgents: v.number(),
 		updatedAt: v.number(),
 	}).index("by_tenant", ["tenantId"]),
+
+	// Cost tracking
+	costReports: defineTable({
+		date: v.string(), // YYYY-MM-DD
+		totalCost: v.number(),
+		totalTokens: v.number(),
+		agents: v.array(v.object({
+			agent: v.string(),
+			cost: v.number(),
+			tokens: v.number(),
+			sessions: v.number(),
+		})),
+		history7d: v.array(v.number()),
+		tenantId: v.optional(v.string()),
+	})
+		.index("by_date", ["date"])
+		.index("by_tenant", ["tenantId"]),
 });
